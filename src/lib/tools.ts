@@ -23,4 +23,11 @@ export const TOOLS: readonly Tool[] = [
     tags: ["trénink", "čas"],
     icon: "⏱",
   },
+  {
+    slug: "hesla",
+    name: "Generátor hesel",
+    description: "Silná náhodná hesla a snadno zapamatovatelné fráze.",
+    tags: ["bezpečnost", "text"],
+    icon: "🔑",
+  },
 ];
