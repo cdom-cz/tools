@@ -1,45 +1,164 @@
-name: Deploy to Zerops
+name: Deploy
+
+# Production deploy to Zerops. It starts only from a published release or a manual dispatch; never from a
+# push, a pull request or a schedule.
+#
+# Two jobs:
+#   verify  has no environment and no secret. It refuses a prerelease, a release tag outside v*, any ref that is
+#           not refs/heads/main or a v* tag, a commit that is not an ancestor of origin/main, and a commit
+#           without a successful "CI Passed" check (ci.yml). Its token is the job's own GITHUB_TOKEN with
+#           contents: read and checks: read; nothing else.
+#   deploy  runs in the "production" environment. The Zerops token is an environment secret and the service id
+#           (ZEROPS_SERVICE_ID) an environment variable of `production`; both reach the steps through env.
 
 on:
   release:
     types: [published]
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
+# One production deploy at a time, and a running one is never cancelled.
 concurrency:
   group: deploy-production
-  # Never cancel a deploy mid-flight — let it finish, the next one waits its turn.
   cancel-in-progress: false
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    environment: production
-
+  verify:
+    name: Verify the release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      checks: read # reads the check runs of the commit to require a successful "CI Passed"; writes nothing
     steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      # Full history so origin/main and the ancestry of the commit can be checked.
+      - name: Check out full history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Get version tag
-        id: version
+      # Event data reaches the script through env only, never through ${{ }} inside the script.
+      - name: Refuse prereleases, foreign tags, foreign refs and commits that are not on main
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
         run: |
-          VERSION=${{ github.event.release.tag_name }}
-          echo "tag=$VERSION" >> $GITHUB_OUTPUT
-          echo "Deploying version: $VERSION"
+          set -euo pipefail
+          if [ "${EVENT_NAME}" = "release" ]; then
+            if [ "${IS_PRERELEASE}" != "false" ]; then
+              echo "::error::A prerelease is never deployed."
+              exit 1
+            fi
+            if [ "${REF_TYPE}" != "tag" ]; then
+              echo "::error::A release must point at a tag."
+              exit 1
+            fi
+            case "${REF_NAME}" in
+              v*) ;;
+              *)
+                echo "::error::Only tags matching v* are deployed."
+                exit 1
+                ;;
+            esac
+          fi
+          # Every event, a manual dispatch above all, must run from main itself or from a v* tag. The runner
+          # sets GITHUB_REF; a dispatch from a feature branch or a foreign tag stops here.
+          case "${GITHUB_REF}" in
+            refs/heads/main | refs/tags/v*) ;;
+            *)
+              echo "::error::Only refs/heads/main and tags matching v* are deployed."
+              exit 1
+              ;;
+          esac
+          if ! git rev-parse --verify --quiet refs/remotes/origin/main > /dev/null; then
+            echo "::error::origin/main is not available in this checkout."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "${GITHUB_SHA}" origin/main; then
+            echo "::error::The commit is not an ancestor of main."
+            exit 1
+          fi
 
-      - name: Install Zerops CLI
+      # The check run "CI Passed" is the aggregator job of ci.yml. Only a completed, successful run of the GitHub Actions app counts, and only the latest
+      # run for the commit (the API default), so a re-run that failed supersedes an earlier green one. The
+      # token is the job token and is visible to this step only; a failing API call refuses the deploy.
+      - name: Require a successful CI Passed check for the commit
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -L https://zerops.io/zcli/install.sh | sh
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          set -euo pipefail
+          passed="$(gh api --paginate \
+            --jq '.check_runs[] | select(.name == "CI Passed" and .app.slug == "github-actions" and .status == "completed" and .conclusion == "success") | .id' \
+            "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100")"
+          if [ -z "${passed}" ]; then
+            echo "::error::No successful CI Passed check run exists for this commit."
+            exit 1
+          fi
 
-      - name: Deploy to Zerops
+  deploy:
+    name: Deploy to Zerops
+    needs: verify
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: production
+    permissions:
+      contents: read
+    env:
+      ZCLI_VERSION: "1.1.2"
+      ZCLI_SHA256: "b85d5cda8158d2be2e4eb42f4ed27ed0896f5d03ad31366c0da8fba48f49ffd7"
+    steps:
+      - name: Check out the release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      # The digest is hard-coded on purpose: a checksum file fetched from the same release would verify
+      # nothing if that release were tampered with. Bump version and digest together, by hand.
+      - name: Install zcli (pinned version, pinned checksum)
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/bin"
+          curl -fsSL --retry 3 -o "${RUNNER_TEMP}/bin/zcli" \
+            "https://github.com/zeropsio/zcli/releases/download/v${ZCLI_VERSION}/zcli-linux-amd64"
+          echo "${ZCLI_SHA256}  ${RUNNER_TEMP}/bin/zcli" | sha256sum --check --strict -
+          chmod +x "${RUNNER_TEMP}/bin/zcli"
+          echo "${RUNNER_TEMP}/bin" >> "${GITHUB_PATH}"
+
+      - name: Log in to Zerops
         env:
           ZEROPS_TOKEN: ${{ secrets.ZEROPS_TOKEN }}
+        run: zcli login "${ZEROPS_TOKEN}"
+
+      # A single push of the `tools` setup (zerops.yaml) deploys the application. The version name is the release tag (also for a dispatch from a
+      # tag) or main plus the short commit sha. It is derived from the runner-provided GITHUB_REF and GITHUB_SHA
+      # only, so no event data and no expression enters the script.
+      - name: Push the tools setup
+        env:
+          SERVICE_ID: ${{ vars.ZEROPS_SERVICE_ID }}
         run: |
-          zcli login "$ZEROPS_TOKEN"
-          zcli push --version-name "${{ steps.version.outputs.tag }}"
+          set -euo pipefail
+          export LC_ALL=C
+          case "${GITHUB_REF}" in
+            refs/tags/v*)
+              VERSION="${GITHUB_REF#refs/tags/}"
+              ;;
+            refs/heads/main)
+              VERSION="main-${GITHUB_SHA:0:12}"
+              ;;
+            *)
+              echo "::error::Only refs/heads/main and tags matching v* are deployed."
+              exit 1
+              ;;
+          esac
+          case "${VERSION}" in
+            "" | *[!0-9A-Za-z._-]*)
+              echo "::error::The version name is empty or has a character outside [0-9A-Za-z._-]."
+              exit 1
+              ;;
+          esac
+          zcli service push --service-id "${SERVICE_ID}" --setup tools --version-name "${VERSION}" --workspace-state clean --zerops-yaml-path zerops.yaml
