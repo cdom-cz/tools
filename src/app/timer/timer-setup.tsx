@@ -12,7 +12,7 @@ import {
   totalWorkRounds,
   type TimerConfig,
 } from "@/lib/interval-timer";
-import { NumberStepper } from "./number-stepper";
+import { NumberStepper } from "@/components/number-stepper";
 
 /** Formulář nastavení intervalu — steppery seskupené podle smyslu (struktura → délky → start). */
 export function TimerSetup({
