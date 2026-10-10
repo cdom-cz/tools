@@ -11,6 +11,7 @@ v prohlížeči, případné nastavení se ukládá do `localStorage`.
 | Cesta | Popis |
 |---|---|
 | `/timer` | Intervalový timer pro HIIT a kruhový trénink |
+| `/meditace` | Meditační timer: bloky, jemný gong na konci každého, trojitý na konci meditace |
 | `/hesla` | Generátor silných náhodných hesel a zapamatovatelných frází |
 | `/faktura` | Jednorázová faktura v CZK jako PDF (QR platba, plátce/neplátce DPH, logo a podpis) |
 

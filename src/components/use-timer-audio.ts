@@ -130,11 +130,61 @@ export function useTimerAudio() {
     setTimeout(() => tone(783.99, 420, 0.26), 440);
   }, [tone]);
 
+  /**
+   * Jeden alikvot misky: rychlý náběh a exponenciální doznívání. Na rozdíl od
+   * `tone` nemá plochou "sustain" část — zvuk misky po úderu jen doznívá.
+   */
+  const partial = useCallback((freq: number, peak: number, decaySec: number) => {
+    const ctx = ctxRef.current;
+    if (!ctx || !enabledRef.current) return;
+    try {
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(peak, now + 0.015);
+      gain.gain.setTargetAtTime(0.0001, now + 0.015, decaySec / 4);
+
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + decaySec + 0.5);
+      osc.onended = () => {
+        try {
+          gain.disconnect();
+          osc.disconnect();
+        } catch {}
+      };
+    } catch {}
+  }, []);
+
+  /**
+   * Jemný gong ve stylu tibetské misky: nízký základ (dvě mírně rozladěné
+   * sinusovky dají pomalé "vlnění") + neharmonické alikvoty s kratším
+   * doznělem. Doznívá ~5 s.
+   */
+  const bowl = useCallback(() => {
+    partial(196, 0.12, 5.5);
+    partial(197.6, 0.1, 5);
+    partial(196 * 2.76, 0.05, 3.5);
+    partial(196 * 5.4, 0.02, 2);
+  }, [partial]);
+
+  /** Trojitý gong na konci celé meditace. */
+  const tripleBowl = useCallback(() => {
+    if (!ctxRef.current) return;
+    bowl();
+    setTimeout(bowl, 2500);
+    setTimeout(bowl, 5000);
+  }, [bowl]);
+
   const toggle = useCallback(() => setEnabled((v) => !v), []);
 
   useEffect(() => () => close(), [close]);
 
-  return { prime, resume, suspend, close, beep, gong, finishChime, enabled, toggle };
+  return { prime, resume, suspend, close, beep, gong, finishChime, bowl, tripleBowl, enabled, toggle };
 }
 
 export type TimerAudio = ReturnType<typeof useTimerAudio>;
