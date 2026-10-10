@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/json-ld";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { LOCALES, SITE_URL, TOOL_IDS, homePath, toolPath, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -80,19 +81,7 @@ export function HomePage({ locale }: { locale: Locale }) {
           })}
         </ul>
 
-        <footer className="mt-12 flex items-center gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
-          <span>{common.madeBy}</span>
-          <a
-            href="https://www.cdom.cz"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="CDOM — cdom.cz"
-            className="transition hover:opacity-80"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/cdom-logo.svg" alt="CDOM" className="h-8 w-auto" />
-          </a>
-        </footer>
+        <SiteFooter locale={locale} />
       </main>
     </div>
   );
