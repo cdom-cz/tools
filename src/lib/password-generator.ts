@@ -1,8 +1,16 @@
 /**
- * Generátor hesel — čistá logika (bez React/DOM). Náhoda výhradně z
- * `crypto.getRandomValues`, nikdy `Math.random`.
+ * Password generator — pure logic (no React/DOM). Randomness comes exclusively
+ * from `crypto.getRandomValues`, never `Math.random`.
  */
+import type { Locale } from "@/i18n/config";
 import { WORDS } from "./czech-words";
+import { WORDS_EN } from "./english-words";
+
+/** Passphrase word list by UI language. */
+export const WORDS_BY_LOCALE: Record<Locale, readonly string[]> = {
+  cs: WORDS,
+  en: WORDS_EN,
+};
 
 export type Mode = "chars" | "words";
 
@@ -43,7 +51,7 @@ export const LIMITS = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Sady znaků
+// Character sets
 // ---------------------------------------------------------------------------
 
 const CHARSETS = {
@@ -53,13 +61,13 @@ const CHARSETS = {
   symbols: "!@#$%^&*()-_=+[]{};:,.?/",
 } as const;
 
-/** Vizuálně zaměnitelné znaky (0/O, 1/l/I, |). */
+/** Visually ambiguous characters (0/O, 1/l/I, |). */
 const AMBIGUOUS = new Set("0Oo1lI|");
 
 type CharsetKey = keyof typeof CHARSETS;
 const CHARSET_KEYS: readonly CharsetKey[] = ["lower", "upper", "digits", "symbols"];
 
-/** Aktivní sady (po vynechání zaměnitelných znaků); prázdné sady se zahodí. */
+/** Active sets (after dropping ambiguous characters); empty sets are discarded. */
 function activeCharsets(config: PasswordConfig): string[] {
   return CHARSET_KEYS.filter((k) => config[k])
     .map((k) =>
@@ -73,7 +81,7 @@ function activeCharsets(config: PasswordConfig): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Náhoda
+// Randomness
 // ---------------------------------------------------------------------------
 
 export type Rng = (buf: Uint32Array) => void;
@@ -82,10 +90,10 @@ const defaultRng: Rng = (buf) => {
   crypto.getRandomValues(buf);
 };
 
-/** Rovnoměrné celé číslo z [0, max) — rejection sampling, bez modulo biasu. */
+/** Uniform integer from [0, max) — rejection sampling, no modulo bias. */
 export function randomInt(max: number, rng: Rng = defaultRng): number {
   if (!Number.isInteger(max) || max <= 0 || max > 0x100000000) {
-    throw new RangeError("max musí být celé číslo v rozsahu 1 až 2^32");
+    throw new RangeError("max must be an integer between 1 and 2^32");
   }
   const buf = new Uint32Array(1);
   const limit = 0x100000000 - (0x100000000 % max);
@@ -99,7 +107,7 @@ function pick<T>(items: ArrayLike<T>, rng: Rng): T {
   return items[randomInt(items.length, rng)];
 }
 
-/** Fisher–Yates na kopii pole. */
+/** Fisher–Yates shuffle on a copy of the array. */
 function shuffle<T>(items: readonly T[], rng: Rng): T[] {
   const out = items.slice();
   for (let i = out.length - 1; i > 0; i--) {
@@ -110,7 +118,7 @@ function shuffle<T>(items: readonly T[], rng: Rng): T[] {
 }
 
 // ---------------------------------------------------------------------------
-// Validace configu (vzor interval-timer.ts)
+// Config validation (pattern from interval-timer.ts)
 // ---------------------------------------------------------------------------
 
 function clampInt(value: unknown, min: number, max: number, fallback: number): number {
@@ -123,7 +131,7 @@ function bool(value: unknown, fallback: boolean): boolean {
   return typeof value === "boolean" ? value : fallback;
 }
 
-/** Ořízne libovolný (i neznámý, např. z localStorage) vstup na platný config. */
+/** Clamps arbitrary (even unknown, e.g. from localStorage) input to a valid config. */
 export function clampConfig(input: unknown): PasswordConfig {
   const src = (input && typeof input === "object" ? input : {}) as Partial<
     Record<keyof PasswordConfig, unknown>
@@ -144,7 +152,7 @@ export function clampConfig(input: unknown): PasswordConfig {
   };
 }
 
-/** Parsuje a ořízne config uložený v localStorage. Nikdy nevyhodí. */
+/** Parses and clamps a config stored in localStorage. Never throws. */
 export function parseStoredConfig(raw: string | null): PasswordConfig | null {
   if (!raw) return null;
   try {
@@ -157,10 +165,10 @@ export function parseStoredConfig(raw: string | null): PasswordConfig | null {
 }
 
 // ---------------------------------------------------------------------------
-// Generování
+// Generation
 // ---------------------------------------------------------------------------
 
-/** Heslo ze znaků; zaručí aspoň jeden znak z každé zvolené sady. Bez sady vrací "". */
+/** Character password; guarantees at least one character from each selected set. Returns "" with no set. */
 export function generatePassword(config: PasswordConfig, rng: Rng = defaultRng): string {
   const sets = activeCharsets(config);
   if (sets.length === 0) return "";
@@ -172,10 +180,15 @@ export function generatePassword(config: PasswordConfig, rng: Rng = defaultRng):
   return shuffle(chars, rng).join("");
 }
 
-/** Slovní fráze ze slovníku; volitelně velká písmena a číslice na konci náhodného slova. */
-export function generatePassphrase(config: PasswordConfig, rng: Rng = defaultRng): string {
+/** Passphrase from the word list; optionally capitalized, with a digit appended to a random word. */
+export function generatePassphrase(
+  config: PasswordConfig,
+  rng: Rng = defaultRng,
+  locale: Locale = "cs",
+): string {
+  const dictionary = WORDS_BY_LOCALE[locale];
   const words = Array.from({ length: config.wordCount }, () => {
-    const w = pick(WORDS, rng);
+    const w = pick(dictionary, rng);
     return config.capitalize ? w.charAt(0).toUpperCase() + w.slice(1) : w;
   });
   if (config.addNumber) {
@@ -185,19 +198,25 @@ export function generatePassphrase(config: PasswordConfig, rng: Rng = defaultRng
   return words.join(config.separator);
 }
 
-export function generate(config: PasswordConfig, rng: Rng = defaultRng): string {
-  return config.mode === "words" ? generatePassphrase(config, rng) : generatePassword(config, rng);
+export function generate(
+  config: PasswordConfig,
+  rng: Rng = defaultRng,
+  locale: Locale = "cs",
+): string {
+  return config.mode === "words"
+    ? generatePassphrase(config, rng, locale)
+    : generatePassword(config, rng);
 }
 
 // ---------------------------------------------------------------------------
-// Síla
+// Strength
 // ---------------------------------------------------------------------------
 
-/** Odhad entropie v bitech podle konfigurace (ne podle konkrétního výsledku). */
-export function estimateEntropyBits(config: PasswordConfig): number {
+/** Entropy estimate in bits based on the configuration (not on a concrete result). */
+export function estimateEntropyBits(config: PasswordConfig, locale: Locale = "cs"): number {
   if (config.mode === "words") {
-    const perWord = Math.log2(WORDS.length);
-    // číslice: volba slova (log2 n) + volba číslice (log2 10)
+    const perWord = Math.log2(WORDS_BY_LOCALE[locale].length);
+    // digit: word choice (log2 n) + digit choice (log2 10)
     const extra = config.addNumber ? Math.log2(config.wordCount * 10) : 0;
     return config.wordCount * perWord + extra;
   }
@@ -209,9 +228,10 @@ export function estimateEntropyBits(config: PasswordConfig): number {
 
 export type StrengthLevel = 0 | 1 | 2 | 3;
 
-export function strengthLabel(bits: number): { label: string; level: StrengthLevel } {
-  if (bits < 40) return { label: "Slabé", level: 0 };
-  if (bits < 60) return { label: "Průměrné", level: 1 };
-  if (bits < 80) return { label: "Silné", level: 2 };
-  return { label: "Velmi silné", level: 3 };
+/** Strength level by entropy; the label comes from the dictionary (`strength[level]`). */
+export function strengthLabel(bits: number): { level: StrengthLevel } {
+  if (bits < 40) return { level: 0 };
+  if (bits < 60) return { level: 1 };
+  if (bits < 80) return { level: 2 };
+  return { level: 3 };
 }
