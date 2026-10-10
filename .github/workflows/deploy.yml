@@ -1,0 +1,45 @@
+name: Deploy to Zerops
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  # Never cancel a deploy mid-flight — let it finish, the next one waits its turn.
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Get version tag
+        id: version
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          echo "tag=$VERSION" >> $GITHUB_OUTPUT
+          echo "Deploying version: $VERSION"
+
+      - name: Install Zerops CLI
+        run: |
+          curl -L https://zerops.io/zcli/install.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Deploy to Zerops
+        env:
+          ZEROPS_TOKEN: ${{ secrets.ZEROPS_TOKEN }}
+        run: |
+          zcli login "$ZEROPS_TOKEN"
+          zcli push --version-name "${{ steps.version.outputs.tag }}"

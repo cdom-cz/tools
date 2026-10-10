@@ -1,0 +1,26 @@
+zerops:
+  - setup: tools
+    build:
+      base: alpine/nodejs@24
+      buildCommands:
+        - pnpm install --prefer-offline --frozen-lockfile
+        - pnpm run build
+      deployFiles:
+        - ./
+      cache:
+        - node_modules
+        - pnpm-lock.yaml
+      envVariables:
+        NODE_ENV: ${RUNTIME_NODE_ENV}
+        NODE_OPTIONS: ${RUNTIME_NODE_OPTIONS}
+        NEXT_PUBLIC_SITE_URL: ${RUNTIME_NEXT_PUBLIC_SITE_URL}
+    run:
+      base: alpine/nodejs@24
+      envVariables:
+        NODE_ENV: 'production'
+        NODE_OPTIONS: '--no-deprecation --max-old-space-size=512'
+        NEXT_PUBLIC_SITE_URL: 'https://tools.cdom.cz'
+      ports:
+        - port: 3000
+          httpSupport: true
+      start: pnpm start

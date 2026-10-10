@@ -1,0 +1,14 @@
+/tests
+/.pnpm-store
+/.gitignore
+/docs/
+/.zcli.yaml
+/zerops.yaml
+/tsconfig.tsbuildinfo
+/.idea
+/.github
+/.git
+/.claude
+/CLAUDE.md
+/_template
+/__sql

@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+/* Dark mode via .dark class on <html> (class strategy) */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Signal priority colors — mirrored in src/lib/tasks.ts. DO NOT change:
+     these are domain semantics (category dots, toggles, charts). */
+  --color-signal-main: #ef4444; /* red   — hlavní */
+  --color-signal-medium: #3b82f6; /* blue  — střední */
+  --color-signal-other: #22c55e; /* green — ostatní */
+  --color-signal-extra: #9ca3af; /* gray  — dodatečný */
+
+  /* CDOM brand: orange accent — identical in both light and dark. */
+  --color-primary: hsl(26 100% 50%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-primary-hover: hsl(26 100% 45%);
+  --color-primary-light: hsl(33 100% 94%);
+  --color-accent: hsl(26 100% 60%);
+  --color-accent-foreground: hsl(0 0% 100%);
+  --color-ring: hsl(26 100% 50%);
+
+  /* Neutrals + roles — LIGHT defaults, mirror cdom.cz. Overridden under .dark. */
+  --color-background: hsl(0 0% 98%);
+  --color-foreground: hsl(240 28% 14%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(240 28% 14%);
+  --color-secondary: hsl(240 28% 14%);
+  --color-secondary-foreground: hsl(0 0% 100%);
+  --color-muted: hsl(30 29% 94%);
+  --color-muted-foreground: hsl(240 8% 57%);
+  --color-body: hsl(240 10% 32%);
+  --color-border: hsl(0 0% 90%);
+  --color-input: hsl(0 0% 90%);
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(0 0% 100%);
+  --color-success: hsl(142 72% 37%);
+  --color-warning: hsl(38 92% 50%);
+
+  /* Font families — actual font-family applied via base layer below using the
+     runtime CSS variables set by next/font in the root layout. */
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+/* Dark mode: derived navy palette. Orange and signal-* stay untouched. */
+.dark {
+  --color-background: hsl(240 24% 8%); /* deep navy page */
+  --color-foreground: hsl(0 0% 98%); /* near-white headings */
+  --color-card: hsl(240 22% 12%); /* raised navy surface */
+  --color-card-foreground: hsl(0 0% 98%);
+  --color-secondary: hsl(0 0% 98%);
+  --color-secondary-foreground: hsl(240 28% 14%);
+  --color-muted: hsl(240 18% 18%); /* subtle fill: chips, progress tracks */
+  --color-muted-foreground: hsl(240 8% 62%);
+  --color-body: hsl(240 12% 78%); /* body text on dark */
+  --color-border: hsl(240 16% 20%);
+  --color-input: hsl(240 16% 20%);
+  --color-primary-light: hsl(26 60% 16%); /* darker tint so orange chips read */
+}
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-body);
+    font-family: var(--font-inter), "Inter", sans-serif;
+    @apply antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-foreground);
+    font-family: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", sans-serif;
+  }
+}
