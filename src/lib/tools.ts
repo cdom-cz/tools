@@ -30,4 +30,11 @@ export const TOOLS: readonly Tool[] = [
     tags: ["bezpečnost", "text"],
     icon: "🔑",
   },
+  {
+    slug: "faktura",
+    name: "Generátor faktur",
+    description: "Jednorázová faktura v CZK s QR platbou jako PDF.",
+    tags: ["finance", "pdf"],
+    icon: "🧾",
+  },
 ];

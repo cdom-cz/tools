@@ -9,6 +9,16 @@ v prohlížeči, případné nastavení se ukládá do `localStorage`.
 | Cesta | Popis |
 |---|---|
 | `/timer` | Intervalový timer pro HIIT a kruhový trénink |
+| `/hesla` | Generátor silných náhodných hesel a zapamatovatelných frází |
+| `/faktura` | Jednorázová faktura v CZK jako PDF (QR platba, plátce/neplátce DPH, logo a podpis) |
+
+### Generátor faktur
+
+PDF vzniká přímo v prohlížeči přes `@react-pdf/renderer` (načítá se až po kliknutí
+na „Stáhnout PDF“), nic se neodesílá. QR platba používá formát SPAYD, IBAN a BIC
+se dopočítají z českého čísla účtu. Font Roboto (WOFF) je v `public/fonts/` kvůli
+české diakritice. Údaje dodavatele, logo a podpis se ukládají do `localStorage`
+(`tools.faktura.*`), odběratel a položky ne.
 
 ## Tech stack
 
@@ -32,7 +42,7 @@ pnpm build && pnpm start
 
 1. Vytvoř složku `src/app/<slug>/` s `page.tsx` (a `layout.tsx` s `<SiteHeader title="…" />`).
 2. Přidej záznam do `src/lib/tools.ts` — homepage ho zobrazí automaticky.
-3. Logiku drž v čistých funkcích v `src/lib/` (viz `interval-timer.ts`).
+3. Logiku drž v čistých funkcích v `src/lib/` (viz `interval-timer.ts`, `invoice.ts`).
 4. Nesahej na DB ani session — tools jsou bez backendu.
 
 ## Deploy
