@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/json-ld";
+import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { LOCALES, SITE_URL, homePath, toolPath, type Locale, type ToolId } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -63,6 +64,7 @@ export function ToolPage({
             {children}
           </I18nProvider>
         </div>
+        <SiteFooter locale={locale} />
       </main>
     </div>
   );
