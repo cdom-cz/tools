@@ -8,8 +8,8 @@ name: Deploy
 #           not refs/heads/main or a v* tag, a commit that is not an ancestor of origin/main, and a commit
 #           without a successful "CI Passed" check (ci.yml). Its token is the job's own GITHUB_TOKEN with
 #           contents: read and checks: read; nothing else.
-#   deploy  runs in the "production" environment. The Zerops token is an environment secret and the service id
-#           (ZEROPS_SERVICE_ID) an environment variable of `production`; both reach the steps through env.
+#   deploy  runs in the "production" environment. The Zerops token is an environment secret and the project and service ids
+#           (ZEROPS_PROJECT_ID, ZEROPS_SERVICE_ID) environment variables of `production`; all reach the steps through env.
 
 on:
   release:
@@ -139,6 +139,7 @@ jobs:
       # only, so no event data and no expression enters the script.
       - name: Push the tools setup
         env:
+          PROJECT_ID: ${{ vars.ZEROPS_PROJECT_ID }}
           SERVICE_ID: ${{ vars.ZEROPS_SERVICE_ID }}
         run: |
           set -euo pipefail
@@ -161,4 +162,4 @@ jobs:
               exit 1
               ;;
           esac
-          zcli service push --service-id "${SERVICE_ID}" --setup tools --version-name "${VERSION}" --workspace-state clean --zerops-yaml-path zerops.yaml
+          zcli service push --project-id "${PROJECT_ID}" --service-id "${SERVICE_ID}" --setup tools --version-name "${VERSION}" --workspace-state clean --zerops-yaml-path zerops.yaml
