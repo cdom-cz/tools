@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/json-ld";
 import { SiteHeader } from "@/components/site-header";
 import { LOCALES, SITE_URL, TOOL_IDS, homePath, toolPath, type Locale } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
@@ -18,6 +19,23 @@ export function HomePage({ locale }: { locale: Locale }) {
   const { common, catalog } = getDictionary(locale);
   return (
     <div className="min-h-screen">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: common.siteName,
+          description: common.tagline,
+          url: `${SITE_URL}${homePath(locale)}`,
+          inLanguage: locale,
+          publisher: { "@type": "Organization", name: "CDOM", url: "https://www.cdom.cz" },
+          hasPart: TOOL_IDS.map((id) => ({
+            "@type": "WebApplication",
+            name: catalog[id].name,
+            description: catalog[id].description,
+            url: `${SITE_URL}${toolPath(locale, id)}`,
+          })),
+        }}
+      />
       <SiteHeader locale={locale} />
       <main className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8">

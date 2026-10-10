@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/json-ld";
 import { SiteHeader } from "@/components/site-header";
-import { LOCALES, SITE_URL, toolPath, type Locale, type ToolId } from "@/i18n/config";
+import { LOCALES, SITE_URL, homePath, toolPath, type Locale, type ToolId } from "@/i18n/config";
 import { getDictionary } from "@/i18n/dictionaries";
 import { I18nProvider } from "@/i18n/provider";
 
@@ -34,6 +35,23 @@ export function ToolPage({
   const entry = dict.catalog[tool];
   return (
     <div className="min-h-screen">
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebApplication",
+          name: entry.name,
+          description: entry.description,
+          url: `${SITE_URL}${toolPath(locale, tool)}`,
+          inLanguage: locale,
+          applicationCategory: "UtilitiesApplication",
+          operatingSystem: "Any",
+          browserRequirements: "Requires JavaScript",
+          isAccessibleForFree: true,
+          offers: { "@type": "Offer", price: "0", priceCurrency: "CZK" },
+          isPartOf: { "@type": "WebSite", name: dict.common.siteName, url: `${SITE_URL}${homePath(locale)}` },
+          publisher: { "@type": "Organization", name: "CDOM", url: "https://www.cdom.cz" },
+        }}
+      />
       <SiteHeader locale={locale} tool={tool} title={entry.name} />
       <main className="mx-auto max-w-4xl px-4 py-6">
         <div className="flex flex-col gap-6">
