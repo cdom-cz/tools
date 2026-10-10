@@ -24,6 +24,13 @@ export const TOOLS: readonly Tool[] = [
     icon: "⏱",
   },
   {
+    slug: "meditace",
+    name: "Meditace",
+    description: "Meditační timer s bloky. Nastavíš počet a délku bloků, na konci každého zazní jemný gong, na konci celé meditace gong třikrát.",
+    tags: ["mysl", "čas"],
+    icon: "🔔",
+  },
+  {
     slug: "hesla",
     name: "Generátor hesel",
     description: "Vygeneruje silná náhodná hesla nebo snadno zapamatovatelné fráze. Délku a typ znaků si zvolíš sám, nic se nikam neodesílá.",

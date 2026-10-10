@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buildSegments, viewAt, type Segment, type TimerConfig, type TimerView } from "@/lib/interval-timer";
-import { useTimerAudio } from "./use-timer-audio";
-import { useWakeLock } from "./use-wake-lock";
+import { useTimerAudio } from "@/components/use-timer-audio";
+import { useWakeLock } from "@/components/use-wake-lock";
 
 export type TimerStatus = "idle" | "running" | "paused" | "finished";
 
