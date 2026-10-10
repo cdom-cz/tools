@@ -30,6 +30,10 @@ pnpm typecheck    # tsc --noEmit — the only verification gate (no tests, no es
 - Tools should prerender statically (no `force-dynamic`, no cookies/headers).
 - PWA: `public/manifest.json` (cs) and `public/manifest.en.json` + icons.
 
+## Language of the repository
+
+Everything related to code is written in **English**: commit messages, pull request titles and descriptions, code comments, identifiers, and documentation aimed at developers. Only user-facing UI copy follows the i18n rules above (Czech is the source of truth, English must mirror it).
+
 ## Deploy
 
 Zerops (`zerops.yaml`, Node 24) via `.github/workflows/deploy.yml` on release publish. Build is just `pnpm install` + `pnpm build`; no env vars are required.
