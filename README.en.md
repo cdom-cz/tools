@@ -16,6 +16,7 @@ settings are kept in `localStorage`.
 | `/en/meditation` | `/meditace` | Meditation timer: blocks, a soft gong after each one, a triple gong at the end |
 | `/en/passwords` | `/hesla` | Generator of strong random passwords and memorable passphrases |
 | `/en/invoice` | `/faktura` | One-off CZK invoice as a PDF (QR payment, VAT payer / non-payer, logo and signature) |
+| `/en/compound-interest` | `/slozene-uroceni` | Compound interest calculator with a chart (monthly/yearly crediting) |
 
 ### Invoice generator
 

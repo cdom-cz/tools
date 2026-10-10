@@ -9,7 +9,10 @@ export type CatalogEntry = {
   intro: string;
 };
 
-export const catalogCs: Record<"timer" | "meditation" | "passwords" | "invoice", CatalogEntry> = {
+export const catalogCs: Record<
+  "timer" | "meditation" | "passwords" | "invoice" | "compound",
+  CatalogEntry
+> = {
   timer: {
     name: "Timer",
     description:
@@ -38,5 +41,13 @@ export const catalogCs: Record<"timer" | "meditation" | "passwords" | "invoice",
     tags: ["finance", "pdf"],
     intro:
       "Faktura v CZK se stáhne jako PDF přímo z prohlížeče, nic se neodesílá. Údaje dodavatele, logo a podpis se pamatují jen v tomto prohlížeči.",
+  },
+  compound: {
+    name: "Složené úročení",
+    description:
+      "Kalkulačka složeného úročení s grafem. Počáteční vklad, pravidelné spoření, sazba a doba; úrok se připisuje měsíčně nebo ročně.",
+    tags: ["finance", "spoření"],
+    intro:
+      "Spočítá, jak naroste vklad při složeném úročení. Vše se počítá v prohlížeči, nastavení se ukládá jen tady.",
   },
 };

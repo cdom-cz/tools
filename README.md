@@ -16,6 +16,7 @@ v prohlížeči, případné nastavení se ukládá do `localStorage`.
 | `/meditace` | `/en/meditation` | Meditační timer: bloky, jemný gong na konci každého, trojitý na konci meditace |
 | `/hesla` | `/en/passwords` | Generátor silných náhodných hesel a zapamatovatelných frází |
 | `/faktura` | `/en/invoice` | Jednorázová faktura v CZK jako PDF (QR platba, plátce/neplátce DPH, logo a podpis) |
+| `/slozene-uroceni` | `/en/compound-interest` | Kalkulačka složeného úročení s grafem (připisování měsíčně/ročně) |
 
 ## Jazyky
 
