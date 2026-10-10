@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * Zamezí uspání displeje během běhu timeru (Screen Wake Lock API).
+ * Prevents the display from sleeping while the timer runs (Screen Wake Lock API).
  *
- * Prohlížeč lock sám uvolní při odchodu ze stránky (skrytí tabu, zamknutí
- * telefonu) a sám ho nikdy nevrátí — proto re-acquire na visibilitychange,
- * dokud je lock "chtěný" (wantedRef přežije ztrátu sentinelu).
+ * The browser releases the lock itself when leaving the page (hiding the tab, locking
+ * the phone) and never restores it — hence re-acquire on visibilitychange
+ * while the lock is "wanted" (wantedRef survives the loss of the sentinel).
  *
- * Vyžaduje secure context (HTTPS) — na localhost funguje, na http://IP z
- * telefonu ne. Chybí-li API (Safari <16.4, starší Firefox), `supported` je
- * false a volání acquire/release jsou no-op.
+ * Requires a secure context (HTTPS) — works on localhost, not on http://IP from
+ * a phone. If the API is missing (Safari <16.4, older Firefox), `supported` is
+ * false and acquire/release calls are no-ops.
  */
 export function useWakeLock() {
   const sentinelRef = useRef<WakeLockSentinel | null>(null);
@@ -33,7 +33,7 @@ export function useWakeLock() {
           setActive(false);
         });
       } catch {
-        // NotAllowedError apod. (nízká baterie, stránka není viditelná) — tiše.
+        // NotAllowedError etc. (low battery, page not visible) — silently.
         setActive(false);
       }
     })();

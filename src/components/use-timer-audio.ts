@@ -5,11 +5,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 type KeepAlive = { osc: OscillatorNode; gain: GainNode };
 
 /**
- * Zvuková signalizace timeru (Web Audio API, žádné zvukové soubory).
+ * Timer sound signalling (Web Audio API, no audio files).
  *
- * KLÍČOVÉ PRAVIDLO: AudioContext se vytváří AŽ v `prime()`, volané ze
- * synchronního user gesta (klik na "Spustit") — iOS/Safari jinak nechá
- * kontext v "suspended" stavu navždy a žádný zvuk se nepřehraje.
+ * KEY RULE: the AudioContext is created only in `prime()`, called from a
+ * synchronous user gesture (click on "Start") — otherwise iOS/Safari leaves
+ * the context in the "suspended" state forever and no sound is played.
  */
 export function useTimerAudio() {
   const ctxRef = useRef<AudioContext | null>(null);
@@ -21,9 +21,9 @@ export function useTimerAudio() {
   const startKeepAlive = useCallback(() => {
     const ctx = ctxRef.current;
     if (!ctx || keepAliveRef.current) return;
-    // iOS suspenduje AudioContext po chvíli ticha; neslyšitelný trvalý tón
-    // (pod prahem slyšitelnosti, gain ~0) drží audio graf živý, jinak je
-    // první pípnutí po delší pauze hluché nebo zpožděné.
+    // iOS suspends the AudioContext after a while of silence; an inaudible constant
+    // tone (below the audibility threshold, gain ~0) keeps the audio graph alive,
+    // otherwise the first beep after a longer pause is silent or delayed.
     try {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
@@ -41,7 +41,7 @@ export function useTimerAudio() {
         const Ctor =
           window.AudioContext ??
           (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-        if (!Ctor) return; // feature detection — Web Audio nedostupné
+        if (!Ctor) return; // feature detection — Web Audio unavailable
         ctxRef.current = new Ctor();
         startKeepAlive();
       }
@@ -75,9 +75,9 @@ export function useTimerAudio() {
   }, []);
 
   /**
-   * Přehraje jeden tón s krátkou attack/release obálkou — bez rampy by skok
-   * amplitudy na hraně tónu cvakl. Plánuje na ctx.currentTime (Web Audio má
-   * vlastní přesné hodiny, nezávislé na JS event loopu).
+   * Plays a single tone with a short attack/release envelope — without a ramp the
+   * amplitude jump at the tone edge would click. Schedules on ctx.currentTime (Web Audio
+   * has its own precise clock, independent of the JS event loop).
    */
   const tone = useCallback((freq: number, durationMs: number, peak: number, type: OscillatorType = "sine") => {
     const ctx = ctxRef.current;
@@ -96,8 +96,8 @@ export function useTimerAudio() {
       gain.gain.setValueAtTime(0, now);
       gain.gain.linearRampToValueAtTime(peak, now + attack);
       gain.gain.setValueAtTime(peak, now + Math.max(attack, dur - release));
-      // Cíl 0.0001, ne 0 — konzistence s exponenciální rampou, kterou by
-      // spec na skutečnou nulu zakázal.
+      // Target 0.0001, not 0 — consistent with the exponential ramp, which the
+      // spec forbids for a true zero.
       gain.gain.linearRampToValueAtTime(0.0001, now + dur);
 
       osc.connect(gain).connect(ctx.destination);
@@ -112,16 +112,16 @@ export function useTimerAudio() {
     } catch {}
   }, []);
 
-  /** Krátké odpočítávací pípnutí — poslední sekundy segmentu. */
+  /** Short countdown beep — the last seconds of a segment. */
   const beep = useCallback(() => tone(880, 120, 0.22), [tone]);
 
-  /** Gong na přechodu intervalu — nižší, delší, dvojtón pro plnější zvuk. */
+  /** Gong at an interval transition — lower, longer, a two-tone for a fuller sound. */
   const gong = useCallback(() => {
     tone(440, 520, 0.28);
     tone(523.25, 480, 0.14);
   }, [tone]);
 
-  /** Trojtón na konci celého tréninku. */
+  /** Three-tone chime at the end of the whole workout. */
   const finishChime = useCallback(() => {
     const ctx = ctxRef.current;
     if (!ctx) return;
@@ -131,8 +131,8 @@ export function useTimerAudio() {
   }, [tone]);
 
   /**
-   * Jeden alikvot misky: rychlý náběh a exponenciální doznívání. Na rozdíl od
-   * `tone` nemá plochou "sustain" část — zvuk misky po úderu jen doznívá.
+   * A single partial of the bowl: fast attack and exponential decay. Unlike
+   * `tone` it has no flat "sustain" part — the bowl sound just decays after the strike.
    */
   const partial = useCallback((freq: number, peak: number, decaySec: number) => {
     const ctx = ctxRef.current;
@@ -161,9 +161,9 @@ export function useTimerAudio() {
   }, []);
 
   /**
-   * Jemný gong ve stylu tibetské misky: nízký základ (dvě mírně rozladěné
-   * sinusovky dají pomalé "vlnění") + neharmonické alikvoty s kratším
-   * doznělem. Doznívá ~5 s.
+   * Soft gong in the style of a Tibetan bowl: a low fundamental (two slightly detuned
+   * sines give a slow "wobble") + inharmonic partials with a shorter
+   * decay. Rings out for ~5 s.
    */
   const bowl = useCallback(() => {
     partial(196, 0.12, 5.5);
@@ -172,7 +172,7 @@ export function useTimerAudio() {
     partial(196 * 5.4, 0.02, 2);
   }, [partial]);
 
-  /** Trojitý gong na konci celé meditace. */
+  /** Triple gong at the end of the whole meditation. */
   const tripleBowl = useCallback(() => {
     if (!ctxRef.current) return;
     bowl();

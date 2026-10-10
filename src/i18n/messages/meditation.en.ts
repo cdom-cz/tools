@@ -1,0 +1,39 @@
+import type { meditationCs } from "./meditation.cs";
+
+export const meditationEn: typeof meditationCs = {
+  phases: {
+    prepare: "Settling",
+    block: "Meditation",
+    done: "Done",
+  },
+  blockWord: { one: "block", few: "blocks", other: "blocks" },
+  stepper: { decrease: "{label} — decrease", increase: "{label} — increase" },
+  setup: {
+    blocks: "Number of blocks",
+    blockLength: "Block duration",
+    prepare: "Settling time at start",
+    note: "A soft gong sounds at the end of each block, and three times at the end of the whole session. Settling is silent.",
+    summary: "{blocks} {blockWord} · {duration} total",
+    total: "Total: {summary}",
+    startButton: "Start",
+  },
+  ring: { aria: "{label}, {time} remaining" },
+  overlay: {
+    dialogAria: "Meditation running",
+    soundOff: "Mute sound",
+    soundOn: "Unmute sound",
+    totalRemaining: "{time} remaining in total",
+    end: "End meditation",
+    done: "Done",
+    doneSummary: "{blocks} {blockWord} · {duration}",
+    settling: "Settle in, the first block will begin soon",
+    blockProgress: "Block {block} / {blocksTotal}",
+    wakeLockUnsupported: "The screen may turn off — your browser does not support Wake Lock.",
+    close: "Close",
+    again: "Again",
+    pause: "Pause",
+    resume: "Resume",
+    skipSettling: "Skip",
+    nextBlock: "Next block",
+  },
+};

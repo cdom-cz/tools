@@ -12,19 +12,21 @@ const valueInputClass =
   "h-12 w-full rounded-xl border-2 border-ring bg-card text-center font-display text-2xl font-semibold tabular-nums text-foreground outline-none";
 
 /**
- * Stepper −/+ s klepnutelnou hodnotou (tap-to-edit) — mobilní náhrada za
- * drobná <input type="number">. Tlačítka 48px (nad 44px minimem podle
- * doporučení pro dotykové ovládání), `touch-manipulation` ruší 300ms
- * prodlevu klepnutí na mobilu.
+ * −/+ stepper with a tappable value (tap-to-edit) — a mobile replacement for
+ * tiny <input type="number">. Buttons are 48px (above the 44px minimum
+ * recommended for touch targets), `touch-manipulation` removes the 300ms
+ * tap delay on mobile.
  *
- * `format`/`parse` dělají z MM:SS čistě formátovací záležitost — stejná
- * komponenta obsluhuje počty (série, kola) i délky (formatMmSs/parseMmSs).
- * Na rozdíl od bývalého DurationInput input existuje jen během editace,
- * takže externí změna hodnoty (načtení z localStorage) nemá s čím kolidovat
- * a není potřeba žádný synchronizační useEffect.
+ * `format`/`parse` make MM:SS a purely formatting concern — the same
+ * component handles counts (series, rounds) and durations (formatMmSs/parseMmSs).
+ * Unlike the former DurationInput, the input exists only during editing,
+ * so an external value change (loading from localStorage) has nothing to
+ * collide with and no synchronizing useEffect is needed.
  */
 export function NumberStepper({
   label,
+  decreaseLabel,
+  increaseLabel,
   value,
   onChange,
   min,
@@ -37,14 +39,17 @@ export function NumberStepper({
   },
 }: {
   label: string;
+  /** aria-label of the −/+ buttons (localized); default "<label> −" / "<label> +". */
+  decreaseLabel?: string;
+  increaseLabel?: string;
   value: number;
   onChange: (next: number) => void;
   min: number;
   max: number;
   step: number;
-  /** Zobrazení hodnoty; výchozí String(value), pro délky formatMmSs. */
+  /** Value display; defaults to String(value), formatMmSs for durations. */
   format?: (v: number) => string;
-  /** Protějšek `format` pro tap-to-edit; vrátí null pro nesmyslný vstup. */
+  /** Counterpart of `format` for tap-to-edit; returns null for invalid input. */
   parse?: (raw: string) => number | null;
 }) {
   const [editing, setEditing] = useState(false);
@@ -58,7 +63,7 @@ export function NumberStepper({
   function commit(raw: string) {
     setEditing(false);
     const parsed = parse(raw.trim());
-    if (parsed === null) return; // neplatný vstup — hodnota se nemění
+    if (parsed === null) return; // invalid input — the value stays unchanged
     onChange(Math.max(min, Math.min(max, parsed)));
   }
 
@@ -70,7 +75,7 @@ export function NumberStepper({
           type="button"
           onClick={() => onChange(Math.max(min, value - step))}
           disabled={value <= min}
-          aria-label={`${label} — snížit`}
+          aria-label={decreaseLabel ?? `${label} −`}
           className={stepBtnClass}
         >
           −
@@ -105,7 +110,7 @@ export function NumberStepper({
           type="button"
           onClick={() => onChange(Math.min(max, value + step))}
           disabled={value >= max}
-          aria-label={`${label} — zvýšit`}
+          aria-label={increaseLabel ?? `${label} +`}
           className={stepBtnClass}
         >
           +

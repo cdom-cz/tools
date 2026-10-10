@@ -1,9 +1,9 @@
 /**
- * Slovník pro slovní fráze — běžná česká podstatná jména, záměrně BEZ diakritiky,
- * aby šla fráze napsat na jakékoli klávesnici (cizí notebook, mobil, terminál).
- * Entropii na slovo počítá `estimateEntropyBits` z reálné délky seznamu
- * (log2(WORDS.length)), takže přidání/odebrání slov nic nerozbije.
- * Seznam se při načtení deduplikuje.
+ * Word list for passphrases — common Czech nouns, deliberately WITHOUT diacritics
+ * so the phrase can be typed on any keyboard (foreign laptop, phone, terminal).
+ * `estimateEntropyBits` computes per-word entropy from the real list length
+ * (log2(WORDS.length)), so adding/removing words breaks nothing.
+ * The list is deduplicated on load.
  */
 const RAW_WORDS = `
 ahoj ananas angrest auto autobus babicka bageta bagr balon banan barva basta bazen becka bedna benzin
@@ -40,7 +40,7 @@ vejce velbloud vetev vichr vitr vlastovka vozik vrbа vrabcak vrana vyhled vyrob
 zajic zaluzie zapad zebro zima zitrek zmrzlina znamka zub zvon zvedavec
 `;
 
-/** Normalizace: jen malá písmena a-z, 3–8 znaků, bez duplicit. */
+/** Normalization: lowercase a-z only, 3–8 characters, no duplicates. */
 export const WORDS: readonly string[] = Array.from(
   new Set(
     RAW_WORDS.split(/\s+/)

@@ -6,10 +6,10 @@
 @theme {
   /* Signal priority colors — mirrored in src/lib/tasks.ts. DO NOT change:
      these are domain semantics (category dots, toggles, charts). */
-  --color-signal-main: #ef4444; /* red   — hlavní */
-  --color-signal-medium: #3b82f6; /* blue  — střední */
-  --color-signal-other: #22c55e; /* green — ostatní */
-  --color-signal-extra: #9ca3af; /* gray  — dodatečný */
+  --color-signal-main: #ef4444; /* red   — main */
+  --color-signal-medium: #3b82f6; /* blue  — medium */
+  --color-signal-other: #22c55e; /* green — other */
+  --color-signal-extra: #9ca3af; /* gray  — extra */
 
   /* CDOM brand: orange accent — identical in both light and dark. */
   --color-primary: hsl(26 100% 50%);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useCommon } from "@/i18n/provider";
 
 type Theme = "light" | "dark";
 
@@ -10,6 +11,7 @@ function getInitial(): Theme {
 }
 
 export function ThemeToggle() {
+  const common = useCommon();
   const [theme, setTheme] = useState<Theme>("light");
 
   // Sync with the class the no-flash script already applied.
@@ -28,8 +30,8 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === "dark" ? "Přepnout na světlý režim" : "Přepnout na tmavý režim"}
-      title={theme === "dark" ? "Světlý režim" : "Tmavý režim"}
+      aria-label={theme === "dark" ? common.themeToLight : common.themeToDark}
+      title={theme === "dark" ? common.lightMode : common.darkMode}
       className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-body transition hover:bg-muted"
     >
       {theme === "dark" ? (

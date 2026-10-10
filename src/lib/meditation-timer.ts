@@ -1,23 +1,24 @@
 /**
- * Čistá doménová logika meditačního timeru. Bez Reactu a bez DOM — běhová
- * vrstva (app/meditace/use-meditation-timer.ts) řeší jen čas, zvuk a wake lock.
+ * Pure domain logic of the meditation timer. No React, no DOM — the runtime
+ * layer (tools/meditation/use-meditation-timer.ts) only deals with time, sound
+ * and wake lock.
  *
- * Struktura: volitelné tiché usazení + N bloků stejné délky. Gong zní na
- * konci každého segmentu; konec posledního bloku je trojitý gong.
+ * Structure: optional silent settling + N blocks of equal length. A gong
+ * sounds at the end of each segment; the end of the last block is a triple gong.
  */
 
 export type MeditationPhase = "prepare" | "block" | "done";
 
 export type MeditationConfig = {
-  blocks: number; // počet bloků
-  blockSeconds: number; // délka jednoho bloku
-  prepareSeconds: number; // tiché usazení na začátku (0 = vypnuto)
+  blocks: number; // number of blocks
+  blockSeconds: number; // duration of one block
+  prepareSeconds: number; // silent settling at the start (0 = off)
 };
 
 export type MeditationSegment = {
   phase: Exclude<MeditationPhase, "done">;
   seconds: number;
-  /** 0-based index bloku; -1 pro "prepare". */
+  /** 0-based block index; -1 for "prepare". */
   blockIndex: number;
 };
 
@@ -27,13 +28,7 @@ export const DEFAULT_CONFIG: MeditationConfig = {
   prepareSeconds: 10,
 };
 
-export const PHASE_LABELS: Record<MeditationPhase, string> = {
-  prepare: "Usazení",
-  block: "Meditace",
-  done: "Hotovo",
-};
-
-/** Statické Tailwind třídy (scanner nevidí dynamicky skládané názvy). */
+/** Static Tailwind classes (the scanner does not see dynamically composed names). */
 export const PHASE_STROKE_CLASS: Record<MeditationPhase, string> = {
   prepare: "stroke-signal-extra",
   block: "stroke-signal-medium",
@@ -70,7 +65,7 @@ function clampInt(value: unknown, min: number, max: number, fallback: number): n
   return Math.max(min, Math.min(max, Math.round(n)));
 }
 
-/** Ořízne libovolný (i neznámý, např. z localStorage) vstup na platný config. */
+/** Clamps any input (even unknown, e.g. from localStorage) to a valid config. */
 export function clampConfig(input: unknown): MeditationConfig {
   const src = (input && typeof input === "object" ? input : {}) as Partial<MeditationConfig>;
   return {
@@ -90,7 +85,7 @@ export function clampConfig(input: unknown): MeditationConfig {
   };
 }
 
-/** Parsuje a ořízne config uložený v localStorage. Nikdy nevyhodí. */
+/** Parses and clamps a config stored in localStorage. Never throws. */
 export function parseStoredConfig(raw: string | null): MeditationConfig | null {
   if (!raw) return null;
   try {
@@ -102,7 +97,7 @@ export function parseStoredConfig(raw: string | null): MeditationConfig | null {
   }
 }
 
-/** Rozvine config do plochého seznamu segmentů v pořadí přehrávání. */
+/** Expands the config into a flat list of segments in playback order. */
 export function buildSegments(config: MeditationConfig): MeditationSegment[] {
   const c = clampConfig(config);
   const out: MeditationSegment[] = [];
@@ -119,13 +114,12 @@ export function totalDuration(segments: MeditationSegment[]): number {
   return segments.reduce((sum, s) => sum + s.seconds, 0);
 }
 
-/** Odvozený pohled na běh pro UI. */
+/** Derived view of the run for the UI. */
 export type MeditationView = {
   phase: MeditationPhase;
-  phaseLabel: string;
   segmentSeconds: number;
   remaining: number;
-  blockNumber: number; // 1-based; 0 během usazení
+  blockNumber: number; // 1-based; 0 during settling
   blocksTotal: number;
 };
 
@@ -140,7 +134,6 @@ export function viewAt(
   if (!seg) {
     return {
       phase: "done",
-      phaseLabel: PHASE_LABELS.done,
       segmentSeconds: 0,
       remaining: 0,
       blockNumber: c.blocks,
@@ -149,17 +142,9 @@ export function viewAt(
   }
   return {
     phase: seg.phase,
-    phaseLabel: PHASE_LABELS[seg.phase],
     segmentSeconds: seg.seconds,
     remaining,
     blockNumber: seg.blockIndex + 1,
     blocksTotal: c.blocks,
   };
-}
-
-/** Správný tvar podstatného jména: 1 blok, 2–4 bloky, 5+ bloků. */
-export function blocksLabel(n: number): string {
-  if (n === 1) return "blok";
-  if (n >= 2 && n <= 4) return "bloky";
-  return "bloků";
 }
