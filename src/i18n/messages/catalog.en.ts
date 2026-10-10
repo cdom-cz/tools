@@ -30,4 +30,12 @@ export const catalogEn: typeof catalogCs = {
     intro:
       "The CZK invoice is downloaded as a PDF straight from your browser; nothing is sent anywhere. Your supplier details, logo and signature are remembered only in this browser.",
   },
+  compound: {
+    name: "Compound interest",
+    description:
+      "Compound interest calculator with a chart. Initial deposit, regular savings, rate and period; interest is credited monthly or yearly.",
+    tags: ["finance", "savings"],
+    intro:
+      "Calculates how a deposit grows with compound interest. Everything is computed in your browser; settings are saved only here.",
+  },
 };

@@ -3,6 +3,8 @@ import { catalogCs } from "./messages/catalog.cs";
 import { catalogEn } from "./messages/catalog.en";
 import { commonCs } from "./messages/common.cs";
 import { commonEn } from "./messages/common.en";
+import { compoundCs } from "./messages/compound.cs";
+import { compoundEn } from "./messages/compound.en";
 import { invoiceCs } from "./messages/invoice.cs";
 import { invoiceEn } from "./messages/invoice.en";
 import { meditationCs } from "./messages/meditation.cs";
@@ -23,6 +25,7 @@ const cs = {
   meditation: meditationCs,
   passwords: passwordsCs,
   invoice: invoiceCs,
+  compound: compoundCs,
 };
 
 export type Dictionary = typeof cs;
@@ -34,6 +37,7 @@ const en: Dictionary = {
   meditation: meditationEn,
   passwords: passwordsEn,
   invoice: invoiceEn,
+  compound: compoundEn,
 };
 
 const DICTIONARIES: Record<Locale, Dictionary> = { cs, en };
