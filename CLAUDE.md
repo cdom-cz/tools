@@ -2,7 +2,7 @@
 
 ## What this is
 
-**Tools** is a public collection of small standalone helper tools (Next.js 16, App Router, Tailwind v4). The homepage (`src/app/page.tsx`) is a launcher listing every tool from the registry in `src/lib/tools.ts`. UI copy is in **Czech**; keep that convention.
+**Tools** (česky „Pomocníčci“, URL zůstává `tools`) is a public collection of small standalone helper tools (Next.js 16, App Router, Tailwind v4). The homepage (`src/app/page.tsx`) is a launcher listing every tool from the registry in `src/lib/tools.ts`. UI copy is in **Czech**; keep that convention.
 
 **There is NO database and NO auth.** Do not add DB clients, ORMs, sessions, or a login/proxy layer. Every tool runs client-side; persistent per-user settings go to `localStorage` (keys namespaced `tools.<slug>.…`).
 

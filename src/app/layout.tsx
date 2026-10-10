@@ -13,13 +13,13 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Tools", template: "%s · Tools" },
+  title: { default: "Pomocníčci", template: "%s · Pomocníčci" },
   description: "Sada malých pomocných nástrojů — bez přihlášení, bez databáze.",
-  applicationName: "Tools",
+  applicationName: "Pomocníčci",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
-    title: "Tools",
+    title: "Pomocníčci",
     statusBarStyle: "default",
   },
   icons: {
