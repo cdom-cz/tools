@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Bezpečnostní problém
+    url: https://github.com/cdom-cz/tools/security/advisories/new
+    about: Zranitelnosti prosím nehlaste veřejně.

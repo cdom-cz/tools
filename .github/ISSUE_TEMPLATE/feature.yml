@@ -1,0 +1,16 @@
+name: Nápad / nový nástroj
+description: Navrhněte vylepšení nebo nový nástroj
+labels: [enhancement]
+body:
+  - type: textarea
+    id: idea
+    attributes:
+      label: Co byste chtěli
+      description: Popište nápad a jaký problém řeší.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativy
+      description: Jak to řešíte dnes?
