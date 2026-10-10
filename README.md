@@ -25,7 +25,7 @@ se dopočítají z českého čísla účtu. Font Roboto (WOFF) je v `public/fon
 Stejný systém jako projekt [signal](https://github.com/cdom-cz/signal), jen bez DB a auth:
 
 - **Next.js 16** (App Router, TypeScript)
-- **pnpm**, Node 24 pinovaný přes **Volta**
+- **pnpm**, Node 24 pinovaný přes **mise** (`mise.toml`)
 - **Tailwind CSS v4** (tmavý režim přes třídu `.dark`, značka CDOM)
 - Nasazení na **Zerops** přes GitHub Actions (release → deploy)
 
