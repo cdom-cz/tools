@@ -1,6 +1,6 @@
 {
-  "name": "Tools",
-  "short_name": "Tools",
+  "name": "Pomocníčci",
+  "short_name": "Pomocníčci",
   "description": "Sada malých pomocných nástrojů",
   "start_url": "/",
   "scope": "/",

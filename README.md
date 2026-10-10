@@ -1,6 +1,8 @@
-# Tools
+# Pomocníčci
 
-Veřejná sada malých pomocných nástrojů (CDOM). Homepage je rozcestník, každý
+<a href="https://www.cdom.cz"><img src="public/cdom-logo.svg" alt="CDOM" height="48"></a>
+
+Veřejná sada malých pomocných nástrojů ([CDOM](https://www.cdom.cz)), URL `tools`. Homepage je rozcestník, každý
 nástroj je samostatná stránka. **Žádná databáze, žádné přihlášení** — vše běží
 v prohlížeči, případné nastavení se ukládá do `localStorage`.
 

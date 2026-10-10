@@ -8,7 +8,7 @@ export default function HomePage() {
       <SiteHeader />
       <main className="mx-auto max-w-4xl px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight">Nástroje</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Pomocníčci</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Malí pomocníci, kteří běží přímo v prohlížeči — bez přihlášení a bez databáze.
           </p>
@@ -47,6 +47,20 @@ export default function HomePage() {
             </li>
           ))}
         </ul>
+
+        <footer className="mt-12 flex items-center gap-3 border-t border-border pt-6 text-sm text-muted-foreground">
+          <span>Vytvořilo</span>
+          <a
+            href="https://www.cdom.cz"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="CDOM — cdom.cz"
+            className="transition hover:opacity-80"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/cdom-logo.svg" alt="CDOM" className="h-8 w-auto" />
+          </a>
+        </footer>
       </main>
     </div>
   );
