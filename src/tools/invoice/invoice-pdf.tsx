@@ -7,8 +7,10 @@ import {
   formatCzk,
   formatDate,
   formatNumber,
+  invoicePalette,
   itemTotals,
   type Invoice,
+  type InvoicePalette,
   type Party,
 } from "@/lib/invoice";
 
@@ -23,74 +25,74 @@ Font.register({
 });
 Font.registerHyphenationCallback((word) => [word]);
 
-// Hard-coded colors — the PDF must not depend on the page theme.
-const ACCENT = "#f26b1d";
-const INK = "#1c1c1e";
-const MUTED = "#76767b";
-const HAIRLINE = "#e2e2e5";
-const TINT = "#fbf3ee";
+// Colors are derived from the chosen primary color — the PDF must not depend on the page theme.
 const MARGIN = 36;
 
-const s = StyleSheet.create({
-  page: { fontFamily: "Roboto", fontSize: 9, color: INK, paddingBottom: 56 },
-  stripe: { height: 7, backgroundColor: ACCENT },
-  header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginHorizontal: MARGIN, marginTop: 28, paddingBottom: 14, borderBottomWidth: 1.5, borderBottomColor: INK },
-  logo: { maxHeight: 40, maxWidth: 160, objectFit: "contain" },
-  headerRight: { alignItems: "flex-end" },
-  heading: { fontSize: 8, fontWeight: 500, color: ACCENT, letterSpacing: 2.5 },
-  number: { fontSize: 22, fontWeight: 700, marginTop: 2 },
-  parties: { flexDirection: "row", marginHorizontal: MARGIN, marginTop: 22, gap: 16 },
-  party: { flex: 1, borderLeftWidth: 2.5, borderLeftColor: ACCENT, paddingLeft: 12, paddingVertical: 2 },
-  partyCustomer: { borderLeftColor: INK },
-  label: { fontSize: 7, fontWeight: 500, color: MUTED, letterSpacing: 1.2, marginBottom: 8 },
-  partyName: { fontSize: 11.5, fontWeight: 700, marginBottom: 4 },
-  line: { fontSize: 9, lineHeight: 1.5 },
-  idRow: { flexDirection: "row", marginTop: 2 },
-  idKey: { width: 34, color: MUTED },
-  note: { marginTop: 10, fontSize: 8, lineHeight: 1.4, color: MUTED },
-  vatNote: { marginTop: 10, fontSize: 7, color: MUTED },
-  dates: { flexDirection: "row", marginHorizontal: MARGIN, marginTop: 22, borderTopWidth: 0.7, borderBottomWidth: 0.7, borderColor: HAIRLINE },
-  dateCell: { flex: 1, paddingVertical: 9, paddingHorizontal: 10, borderRightWidth: 0.7, borderRightColor: HAIRLINE },
-  dateCellLast: { borderRightWidth: 0 },
-  dateKey: { fontSize: 7, color: MUTED, marginBottom: 3 },
-  dateVal: { fontSize: 10, fontWeight: 500 },
-  table: { marginTop: 22, marginHorizontal: MARGIN },
-  thead: { flexDirection: "row", backgroundColor: INK, color: "#ffffff", fontSize: 8, fontWeight: 500, paddingVertical: 7 },
-  trow: { flexDirection: "row", alignItems: "center", paddingVertical: 9 },
-  trowAlt: { backgroundColor: "#f6f6f7" },
-  cIdx: { width: 30, textAlign: "center" },
-  cDesc: { flex: 1, paddingRight: 8 },
-  cQty: { width: 58, textAlign: "right" },
-  cPrice: { width: 80, textAlign: "right" },
-  cVat: { width: 40, textAlign: "right" },
-  cTotal: { width: 84, textAlign: "right", paddingRight: 8 },
-  summaryWrap: { marginHorizontal: MARGIN, marginTop: 14, alignItems: "flex-end" },
-  summaryRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 3, color: MUTED },
-  summaryCell: { width: 80, textAlign: "right" },
-  totalBar: { marginTop: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: ACCENT, color: "#ffffff", paddingVertical: 10, paddingHorizontal: 14, minWidth: 220 },
-  totalLabel: { fontSize: 8, fontWeight: 500, letterSpacing: 1.2, marginRight: 24 },
-  total: { fontSize: 15, fontWeight: 700 },
-  roundNote: { color: MUTED, marginTop: 6 },
-  pay: { marginHorizontal: MARGIN, marginTop: 26, backgroundColor: TINT, borderTopWidth: 2, borderTopColor: ACCENT, padding: 14, flexDirection: "row", alignItems: "center", gap: 16 },
-  qr: { width: 96, height: 96, backgroundColor: "#ffffff", padding: 5 },
-  payBody: { flex: 1 },
-  payText: { fontSize: 9.5, lineHeight: 1.6, marginBottom: 10 },
-  payStrong: { fontWeight: 700 },
-  factGrid: { flexDirection: "row", gap: 18 },
-  factCol: { flexDirection: "column" },
-  factRow: { flexDirection: "row", fontSize: 7.5, marginBottom: 3 },
-  factKey: { color: MUTED, width: 62, flexShrink: 0 },
-  factVal: { color: INK },
-  footer: { marginHorizontal: MARGIN, marginTop: 18, lineHeight: 1.5, fontSize: 8.5, color: MUTED },
-  signature: { marginTop: 14, marginRight: 40, alignSelf: "flex-end", height: 80, maxWidth: 200, objectFit: "contain" },
-  pageNo: { position: "absolute", bottom: 22, right: MARGIN, fontSize: 8, color: MUTED },
-  rule: { position: "absolute", bottom: 44, left: MARGIN, right: MARGIN, borderTopWidth: 0.7, borderTopColor: HAIRLINE },
-  bottomStripe: { position: "absolute", bottom: 0, left: 0, right: 0, height: 4, backgroundColor: ACCENT },
-});
+function createStyles({ accent, accentText, onAccent, ink: INK, muted: MUTED, hairline: HAIRLINE, tint: TINT, rowAlt }: InvoicePalette) {
+  const ACCENT = accent;
+  return StyleSheet.create({
+    page: { fontFamily: "Roboto", fontSize: 9, color: INK, paddingBottom: 56 },
+    stripe: { height: 7, backgroundColor: ACCENT },
+    header: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end", marginHorizontal: MARGIN, marginTop: 28, paddingBottom: 14, borderBottomWidth: 1.5, borderBottomColor: INK },
+    logo: { maxHeight: 40, maxWidth: 160, objectFit: "contain" },
+    headerRight: { alignItems: "flex-end" },
+    heading: { fontSize: 8, fontWeight: 500, color: accentText, letterSpacing: 2.5 },
+    number: { fontSize: 22, fontWeight: 700, marginTop: 2 },
+    parties: { flexDirection: "row", marginHorizontal: MARGIN, marginTop: 22, gap: 16 },
+    party: { flex: 1, borderLeftWidth: 2.5, borderLeftColor: ACCENT, paddingLeft: 12, paddingVertical: 2 },
+    partyCustomer: { borderLeftColor: INK },
+    label: { fontSize: 7, fontWeight: 500, color: MUTED, letterSpacing: 1.2, marginBottom: 8 },
+    partyName: { fontSize: 11.5, fontWeight: 700, marginBottom: 4 },
+    line: { fontSize: 9, lineHeight: 1.5 },
+    idRow: { flexDirection: "row", marginTop: 2 },
+    idKey: { width: 34, color: MUTED },
+    note: { marginTop: 10, fontSize: 8, lineHeight: 1.4, color: MUTED },
+    vatNote: { marginTop: 10, fontSize: 7, color: MUTED },
+    dates: { flexDirection: "row", marginHorizontal: MARGIN, marginTop: 22, borderTopWidth: 0.7, borderBottomWidth: 0.7, borderColor: HAIRLINE },
+    dateCell: { flex: 1, paddingVertical: 9, paddingHorizontal: 10, borderRightWidth: 0.7, borderRightColor: HAIRLINE },
+    dateCellLast: { borderRightWidth: 0 },
+    dateKey: { fontSize: 7, color: MUTED, marginBottom: 3 },
+    dateVal: { fontSize: 10, fontWeight: 500 },
+    table: { marginTop: 22, marginHorizontal: MARGIN },
+    thead: { flexDirection: "row", backgroundColor: INK, color: "#ffffff", fontSize: 8, fontWeight: 500, paddingVertical: 7 },
+    trow: { flexDirection: "row", alignItems: "center", paddingVertical: 9 },
+    trowAlt: { backgroundColor: rowAlt },
+    cIdx: { width: 30, textAlign: "center" },
+    cDesc: { flex: 1, paddingRight: 8 },
+    cQty: { width: 58, textAlign: "right" },
+    cPrice: { width: 80, textAlign: "right" },
+    cVat: { width: 40, textAlign: "right" },
+    cTotal: { width: 84, textAlign: "right", paddingRight: 8 },
+    summaryWrap: { marginHorizontal: MARGIN, marginTop: 14, alignItems: "flex-end" },
+    summaryRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 3, color: MUTED },
+    summaryCell: { width: 80, textAlign: "right" },
+    totalBar: { marginTop: 10, flexDirection: "row", alignItems: "center", justifyContent: "space-between", backgroundColor: ACCENT, color: onAccent, paddingVertical: 10, paddingHorizontal: 14, minWidth: 220 },
+    totalLabel: { fontSize: 8, fontWeight: 500, letterSpacing: 1.2, marginRight: 24 },
+    total: { fontSize: 15, fontWeight: 700 },
+    roundNote: { color: MUTED, marginTop: 6 },
+    pay: { marginHorizontal: MARGIN, marginTop: 26, backgroundColor: TINT, borderTopWidth: 2, borderTopColor: ACCENT, padding: 14, flexDirection: "row", alignItems: "center", gap: 16 },
+    qr: { width: 96, height: 96, backgroundColor: "#ffffff", padding: 5 },
+    payBody: { flex: 1 },
+    payText: { fontSize: 9.5, lineHeight: 1.6, marginBottom: 10 },
+    payStrong: { fontWeight: 700 },
+    factGrid: { flexDirection: "row", gap: 18 },
+    factCol: { flexDirection: "column" },
+    factRow: { flexDirection: "row", fontSize: 7.5, marginBottom: 3 },
+    factKey: { color: MUTED, width: 62, flexShrink: 0 },
+    factVal: { color: INK },
+    footer: { marginHorizontal: MARGIN, marginTop: 18, lineHeight: 1.5, fontSize: 8.5, color: MUTED },
+    signature: { marginTop: 14, marginRight: 40, alignSelf: "flex-end", height: 80, maxWidth: 200, objectFit: "contain" },
+    pageNo: { position: "absolute", bottom: 22, right: MARGIN, fontSize: 8, color: MUTED },
+    rule: { position: "absolute", bottom: 44, left: MARGIN, right: MARGIN, borderTopWidth: 0.7, borderTopColor: HAIRLINE },
+    bottomStripe: { position: "absolute", bottom: 0, left: 0, right: 0, height: 4, backgroundColor: ACCENT },
+  });
+}
 
 type PdfMessages = Dictionary["invoice"]["pdf"];
 
-function PartyBlock({ party, m }: { party: Party; m: PdfMessages }) {
+type Styles = ReturnType<typeof createStyles>;
+
+function PartyBlock({ party, m, s }: { party: Party; m: PdfMessages; s: Styles }) {
   const cityLine = [party.zip && party.city ? `${party.city}, ${party.zip}` : party.city || party.zip]
     .filter(Boolean)
     .join("");
@@ -117,7 +119,7 @@ function PartyBlock({ party, m }: { party: Party; m: PdfMessages }) {
   );
 }
 
-function Fact({ k, v }: { k: string; v: string }) {
+function Fact({ k, v, s }: { k: string; v: string; s: Styles }) {
   return (
     <View style={s.factRow}>
       <Text style={s.factKey}>{k}</Text>
@@ -126,7 +128,7 @@ function Fact({ k, v }: { k: string; v: string }) {
   );
 }
 
-function DateCell({ k, v, last }: { k: string; v: string; last?: boolean }) {
+function DateCell({ k, v, last, s }: { k: string; v: string; last?: boolean; s: Styles }) {
   return (
     <View style={last ? [s.dateCell, s.dateCellLast] : s.dateCell}>
       <Text style={s.dateKey}>{k}</Text>
@@ -142,6 +144,7 @@ export function InvoicePdf({
   qrDataUrl,
   logo,
   signature,
+  primaryColor,
 }: {
   locale: Locale;
   messages: PdfMessages;
@@ -149,7 +152,10 @@ export function InvoicePdf({
   qrDataUrl: string | null;
   logo: string | null;
   signature: string | null;
+  primaryColor: string;
 }) {
+  const palette = invoicePalette(primaryColor);
+  const s = createStyles(palette);
   const { supplier } = invoice;
   const vatPayer = supplier.vatPayer;
   const totals = computeTotals(invoice.items, vatPayer);
@@ -174,21 +180,21 @@ export function InvoicePdf({
         <View style={s.parties}>
           <View style={s.party}>
             <Text style={s.label}>{m.supplier.toUpperCase()}</Text>
-            <PartyBlock party={supplier.party} m={m} />
+            <PartyBlock party={supplier.party} m={m} s={s} />
             {supplier.party.note ? <Text style={s.note}>{supplier.party.note}</Text> : null}
             <Text style={s.vatNote}>{vatPayer ? m.vatPayer : m.nonVatPayer}</Text>
           </View>
           <View style={[s.party, s.partyCustomer]}>
             <Text style={s.label}>{m.customer.toUpperCase()}</Text>
-            <PartyBlock party={invoice.customer} m={m} />
+            <PartyBlock party={invoice.customer} m={m} s={s} />
             {invoice.customer.note ? <Text style={s.note}>{invoice.customer.note}</Text> : null}
           </View>
         </View>
 
         <View style={s.dates}>
-          <DateCell k={m.issueDate} v={date(invoice.issueDate)} />
-          {vatPayer ? <DateCell k={m.taxDate} v={date(invoice.taxDate)} /> : null}
-          <DateCell k={m.dueDate} v={date(invoice.dueDate)} last />
+          <DateCell s={s} k={m.issueDate} v={date(invoice.issueDate)} />
+          {vatPayer ? <DateCell s={s} k={m.taxDate} v={date(invoice.taxDate)} /> : null}
+          <DateCell s={s} k={m.dueDate} v={date(invoice.dueDate)} last />
         </View>
 
         <View style={s.table}>
@@ -228,7 +234,7 @@ export function InvoicePdf({
                 <Text style={s.summaryCell}>{m.sumTotal}</Text>
               </View>
               {totals.summary.map((r) => (
-                <View key={r.rate} style={[s.summaryRow, { color: INK }]}>
+                <View key={r.rate} style={[s.summaryRow, { color: palette.ink }]}>
                   <Text style={s.summaryCell}>{r.rate} %</Text>
                   <Text style={s.summaryCell}>{money(r.base)}</Text>
                   <Text style={s.summaryCell}>{money(r.vat)}</Text>
@@ -256,14 +262,14 @@ export function InvoicePdf({
             </Text>
             <View style={s.factGrid}>
               <View style={[s.factCol, { width: 175 }]}>
-                {supplier.account ? <Fact k={m.account} v={supplier.account} /> : null}
-                {supplier.iban ? <Fact k={m.iban} v={supplier.iban} /> : null}
-                {supplier.bic ? <Fact k={m.bic} v={supplier.bic} /> : null}
+                {supplier.account ? <Fact s={s} k={m.account} v={supplier.account} /> : null}
+                {supplier.iban ? <Fact s={s} k={m.iban} v={supplier.iban} /> : null}
+                {supplier.bic ? <Fact s={s} k={m.bic} v={supplier.bic} /> : null}
               </View>
               <View style={s.factCol}>
-                <Fact k={m.variableSymbol} v={invoice.variableSymbol} />
-                {supplier.paymentMethod ? <Fact k={m.paymentMethod} v={supplier.paymentMethod} /> : null}
-                <Fact k={m.payable} v={money(totals.payable)} />
+                <Fact s={s} k={m.variableSymbol} v={invoice.variableSymbol} />
+                {supplier.paymentMethod ? <Fact s={s} k={m.paymentMethod} v={supplier.paymentMethod} /> : null}
+                <Fact s={s} k={m.payable} v={money(totals.payable)} />
               </View>
             </View>
           </View>

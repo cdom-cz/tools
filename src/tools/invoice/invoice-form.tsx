@@ -10,11 +10,13 @@ import {
   computeTotals,
   czAccountToIban,
   defaultInvoice,
+  DEFAULT_PRIMARY_COLOR,
   defaultSupplier,
   emptyItem,
   emptyParty,
   formatCzk,
   itemTotals,
+  normalizeHex,
   validateInvoice,
   VAT_RATES,
   type Invoice,
@@ -28,6 +30,7 @@ import {
 const SUPPLIER_KEY = "tools.faktura.supplier.v1";
 const LOGO_KEY = "tools.faktura.logo.v1";
 const SIGNATURE_KEY = "tools.faktura.signature.v1";
+const COLOR_KEY = "tools.faktura.color.v1";
 const LAST_NUMBER_KEY = "tools.faktura.lastNumber.v1";
 
 const cardClass = "rounded-2xl border border-border bg-card p-4";
@@ -188,6 +191,7 @@ export function InvoiceForm() {
   const [invoice, setInvoice] = useState<Invoice>(() => defaultInvoice(defaults));
   const [logo, setLogo] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
+  const [primaryColor, setPrimaryColor] = useState(DEFAULT_PRIMARY_COLOR);
   const [hydrated, setHydrated] = useState(false);
   // The supplier is saved only after a user edit, so language-specific defaults do not leak into the other language.
   const [supplierTouched, setSupplierTouched] = useState(false);
@@ -210,6 +214,7 @@ export function InvoiceForm() {
     });
     setLogo(read<string>(LOGO_KEY));
     setSignature(read<string>(SIGNATURE_KEY));
+    setPrimaryColor(normalizeHex(read<string>(COLOR_KEY)));
     setHydrated(true);
   }, []);
 
@@ -269,7 +274,7 @@ export function InvoiceForm() {
           )
         : null;
       const blob = await pdf(
-        <InvoicePdf locale={locale} messages={t.pdf} invoice={{ ...invoice, supplier: { ...invoice.supplier, iban } }} qrDataUrl={qrDataUrl} logo={logo} signature={signature} />,
+        <InvoicePdf locale={locale} messages={t.pdf} invoice={{ ...invoice, supplier: { ...invoice.supplier, iban } }} qrDataUrl={qrDataUrl} logo={logo} signature={signature} primaryColor={primaryColor} />,
       ).toBlob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -447,6 +452,35 @@ export function InvoiceForm() {
             }}
           />
         </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
+            {t.appearance.color}
+            <input
+              type="color"
+              value={primaryColor}
+              onChange={(e) => {
+                const v = normalizeHex(e.target.value);
+                setPrimaryColor(v);
+                write(COLOR_KEY, v === DEFAULT_PRIMARY_COLOR ? null : v);
+              }}
+              className="h-11 w-16 cursor-pointer rounded-lg border border-input bg-background p-1"
+            />
+          </label>
+          <span className="font-mono text-sm uppercase text-muted-foreground">{primaryColor}</span>
+          {primaryColor !== DEFAULT_PRIMARY_COLOR && (
+            <button
+              type="button"
+              className={smallBtnClass}
+              onClick={() => {
+                setPrimaryColor(DEFAULT_PRIMARY_COLOR);
+                write(COLOR_KEY, null);
+              }}
+            >
+              {t.appearance.colorReset}
+            </button>
+          )}
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">{t.appearance.colorHint}</p>
       </section>
 
       {errors.length > 0 && (
