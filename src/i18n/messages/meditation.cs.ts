@@ -7,8 +7,9 @@ export const meditationCs = {
   blockWord: { one: "blok", few: "bloky", other: "bloků" },
   stepper: { decrease: "{label} — snížit", increase: "{label} — zvýšit" },
   setup: {
-    blocks: "Počet bloků",
-    blockLength: "Délka bloku",
+    blockLabel: "Blok {n}",
+    addBlock: "Přidat blok",
+    removeBlock: "Odebrat blok {n}",
     prepare: "Usazení na začátku",
     note: "Na konci každého bloku zazní jemný gong, na konci celé meditace třikrát. Při usazení je ticho.",
     summary: "{blocks} {blockWord} · celkem {duration}",

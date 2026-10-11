@@ -9,8 +9,9 @@ export const meditationEn: typeof meditationCs = {
   blockWord: { one: "block", few: "blocks", other: "blocks" },
   stepper: { decrease: "{label} — decrease", increase: "{label} — increase" },
   setup: {
-    blocks: "Number of blocks",
-    blockLength: "Block duration",
+    blockLabel: "Block {n}",
+    addBlock: "Add block",
+    removeBlock: "Remove block {n}",
     prepare: "Settling time at start",
     note: "A soft gong sounds at the end of each block, and three times at the end of the whole session. Settling is silent.",
     summary: "{blocks} {blockWord} · {duration} total",

@@ -193,6 +193,86 @@ export function computeTotals(items: readonly InvoiceItem[], vatPayer: boolean):
   return { base, vat, total, rounding: payable - total, payable, summary };
 }
 
+/* ---------- Color palette ---------- */
+
+export const DEFAULT_PRIMARY_COLOR = "#f26b1d";
+
+export type InvoicePalette = {
+  /** Primary color: stripes, party accent, total bar. */
+  accent: string;
+  /** Accent usable as text on white (darkened when the primary is too light). */
+  accentText: string;
+  /** Text on top of the accent background (white or near-black, whichever reads better). */
+  onAccent: string;
+  ink: string;
+  muted: string;
+  hairline: string;
+  tint: string;
+  rowAlt: string;
+};
+
+export function normalizeHex(value: string | null | undefined): string {
+  const v = (value ?? "").trim();
+  return /^#[0-9a-f]{6}$/i.test(v) ? v.toLowerCase() : DEFAULT_PRIMARY_COLOR;
+}
+
+function hexToHsl(hex: string): [number, number, number] {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const l = (max + min) / 2;
+  const d = max - min;
+  if (d === 0) return [0, 0, l];
+  const sat = d / (1 - Math.abs(2 * l - 1));
+  const h = max === r ? ((g - b) / d + (g < b ? 6 : 0)) : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h * 60, sat, l];
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const k = (n: number) => (n + h / 30) % 12;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return `#${[f(0), f(8), f(4)].map((v) => Math.round(v * 255).toString(16).padStart(2, "0")).join("")}`;
+}
+
+function luminance(hex: string): number {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrast(a: string, b: string): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+/** Derives the whole invoice color scheme from one primary color (same hue, adjusted saturation/lightness). */
+export function invoicePalette(primary: string): InvoicePalette {
+  const accent = normalizeHex(primary);
+  const [h, s, l] = hexToHsl(accent);
+  const ink = hslToHex(h, Math.min(s, 0.2), 0.11);
+
+  let accentText = accent;
+  let lightness = l;
+  while (contrast(accentText, "#ffffff") < 3.5 && lightness > 0.05) {
+    lightness -= 0.02;
+    accentText = hslToHex(h, s, lightness);
+  }
+
+  return {
+    accent,
+    accentText,
+    onAccent: contrast(accent, "#ffffff") >= contrast(accent, ink) ? "#ffffff" : ink,
+    ink,
+    muted: hslToHex(h, Math.min(s, 0.08), 0.46),
+    hairline: hslToHex(h, Math.min(s, 0.12), 0.89),
+    tint: hslToHex(h, Math.min(s, 0.7), 0.95),
+    rowAlt: hslToHex(h, Math.min(s, 0.1), 0.965),
+  };
+}
+
 /* ---------- Bank details ---------- */
 
 const ACCOUNT_RE = /^(?:(\d{1,6})-)?(\d{2,10})\/(\d{4})$/;

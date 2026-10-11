@@ -1,15 +1,15 @@
-## Co se mění
+## What changes
 
-<!-- Stručný popis změny a proč. -->
+<!-- Brief description of the change and why. Write in English (see CLAUDE.md). -->
 
-## Souvisí s
+## Related to
 
-<!-- Např. Closes #123 -->
+<!-- E.g. Closes #123 -->
 
 ## Checklist
 
-- [ ] `pnpm typecheck` projde
-- [ ] `pnpm build` projde
-- [ ] UI texty jsou česky
-- [ ] Žádná DB/auth; nastavení jen v `localStorage` (`tools.<slug>.…`)
-- [ ] Doménová logika je v `src/lib/` jako čisté funkce
+- [ ] `pnpm typecheck` passes
+- [ ] `pnpm build` passes
+- [ ] User-facing strings exist in both Czech and English (Czech is the source of truth)
+- [ ] No DB/auth; settings only in `localStorage` (`tools.<slug>.…`)
+- [ ] Domain logic lives in `src/lib/` as pure functions

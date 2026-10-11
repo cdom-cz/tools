@@ -4,8 +4,10 @@ import { useMemo } from "react";
 import { fmt, plural } from "@/i18n/format";
 import { useLocale, useToolMessages } from "@/i18n/provider";
 import {
+  addBlock,
   buildSegments,
   LIMITS,
+  removeBlock,
   STEPS,
   totalDuration,
   type MeditationConfig,
@@ -13,7 +15,7 @@ import {
 import { formatHuman, formatMmSs, parseMmSs } from "@/lib/time-format";
 import { NumberStepper } from "@/components/number-stepper";
 
-/** Meditation setup form: number of blocks, block duration, settling at the start. */
+/** Meditation setup form: a list of blocks (each with its own duration), settling at the start. */
 export function MeditationSetup({
   config,
   onChange,
@@ -28,47 +30,64 @@ export function MeditationSetup({
   const locale = useLocale();
   const segments = useMemo(() => buildSegments(config), [config]);
   const summary = fmt(t.summary, {
-    blocks: config.blocks,
-    blockWord: plural(locale, m.blockWord, config.blocks),
+    blocks: config.blockSeconds.length,
+    blockWord: plural(locale, m.blockWord, config.blockSeconds.length),
     duration: formatHuman(totalDuration(segments)),
   });
 
-  function set<K extends keyof MeditationConfig>(key: K, value: MeditationConfig[K]) {
-    onChange({ ...config, [key]: value });
+  function setBlock(index: number, value: number) {
+    onChange({ ...config, blockSeconds: config.blockSeconds.map((v, i) => (i === index ? value : v)) });
   }
 
   return (
     <div className="flex flex-col gap-6">
       <section className="rounded-2xl border border-border bg-card p-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <NumberStepper
-            label={t.blocks}
-            decreaseLabel={fmt(m.stepper.decrease, { label: t.blocks })}
-            increaseLabel={fmt(m.stepper.increase, { label: t.blocks })}
-            value={config.blocks}
-            onChange={(v) => set("blocks", v)}
-            min={LIMITS.blocks.min}
-            max={LIMITS.blocks.max}
-            step={STEPS.blocks}
-          />
-          <NumberStepper
-            label={t.blockLength}
-            decreaseLabel={fmt(m.stepper.decrease, { label: t.blockLength })}
-            increaseLabel={fmt(m.stepper.increase, { label: t.blockLength })}
-            value={config.blockSeconds}
-            onChange={(v) => set("blockSeconds", v)}
-            min={LIMITS.blockSeconds.min}
-            max={LIMITS.blockSeconds.max}
-            step={STEPS.blockSeconds}
-            format={formatMmSs}
-            parse={parseMmSs}
-          />
+        <div className="flex flex-col gap-4">
+          {config.blockSeconds.map((seconds, i) => {
+            const label = fmt(t.blockLabel, { n: i + 1 });
+            return (
+              <div key={i} className="flex items-end gap-2">
+                <div className="flex-1">
+                  <NumberStepper
+                    label={label}
+                    decreaseLabel={fmt(m.stepper.decrease, { label })}
+                    increaseLabel={fmt(m.stepper.increase, { label })}
+                    value={seconds}
+                    onChange={(v) => setBlock(i, v)}
+                    min={LIMITS.blockSeconds.min}
+                    max={LIMITS.blockSeconds.max}
+                    step={STEPS.blockSeconds}
+                    format={formatMmSs}
+                    parse={parseMmSs}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onChange(removeBlock(config, i))}
+                  disabled={config.blockSeconds.length <= LIMITS.blocks.min}
+                  aria-label={fmt(t.removeBlock, { n: i + 1 })}
+                  title={fmt(t.removeBlock, { n: i + 1 })}
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border bg-card text-xl text-foreground transition touch-manipulation hover:bg-muted active:scale-95 disabled:pointer-events-none disabled:opacity-35"
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => onChange(addBlock(config))}
+            disabled={config.blockSeconds.length >= LIMITS.blocks.max}
+            className="inline-flex h-12 items-center justify-center rounded-xl border border-dashed border-border text-sm font-semibold text-foreground transition touch-manipulation hover:bg-muted disabled:pointer-events-none disabled:opacity-35"
+          >
+            + {t.addBlock}
+          </button>
           <NumberStepper
             label={t.prepare}
             decreaseLabel={fmt(m.stepper.decrease, { label: t.prepare })}
             increaseLabel={fmt(m.stepper.increase, { label: t.prepare })}
             value={config.prepareSeconds}
-            onChange={(v) => set("prepareSeconds", v)}
+            onChange={(v) => onChange({ ...config, prepareSeconds: v })}
             min={LIMITS.prepareSeconds.min}
             max={LIMITS.prepareSeconds.max}
             step={STEPS.prepareSeconds}

@@ -126,8 +126,8 @@ export function MeditationOverlay({ timer, config }: { timer: UseMeditationTimer
               <p className="font-display text-4xl font-bold text-foreground">{o.done}</p>
               <p className="text-sm text-muted-foreground">
                 {fmt(o.doneSummary, {
-                  blocks: config.blocks,
-                  blockWord: plural(locale, m.blockWord, config.blocks),
+                  blocks: config.blockSeconds.length,
+                  blockWord: plural(locale, m.blockWord, config.blockSeconds.length),
                   duration: formatHuman(totalSeconds),
                 })}
               </p>

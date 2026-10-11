@@ -162,4 +162,4 @@ jobs:
               exit 1
               ;;
           esac
-          zcli service push --project-id "${PROJECT_ID}" --service-id "${SERVICE_ID}" --setup tools --version-name "${VERSION}" --workspace-state clean --zerops-yaml-path zerops.yaml
+          zcli service push --project-id "${PROJECT_ID}" --service-id "${SERVICE_ID}" --version-name "${VERSION}" --workspace-state clean

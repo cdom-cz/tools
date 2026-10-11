@@ -11,9 +11,9 @@ export const catalogEn: typeof catalogCs = {
   meditation: {
     name: "Meditation",
     description:
-      "Meditation timer with blocks. Set the number and length of blocks; a soft gong sounds at the end of each one and three times at the end of the whole session.",
+      "Meditation timer with blocks. Add as many blocks as you like and set each one's own length; a soft gong sounds at the end of each one and three times at the end of the whole session.",
     tags: ["mind", "time"],
-    intro: "Set the number and length of blocks; a soft gong sounds at the end of each. Settings are saved in this browser.",
+    intro: "Add as many blocks as you like and set each one's own length; a soft gong sounds at the end of each. Settings are saved in this browser.",
   },
   passwords: {
     name: "Password generator",

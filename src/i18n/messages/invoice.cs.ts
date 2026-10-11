@@ -71,6 +71,9 @@ export const invoiceCs = {
     title: "Vzhled",
     logo: "Logo (vlevo nahoře)",
     signature: "Podpis / razítko",
+    color: "Primární barva",
+    colorReset: "Výchozí",
+    colorHint: "Ostatní barvy faktury (text, linky, pozadí) se odvodí z primární barvy.",
   },
   actions: {
     download: "Stáhnout PDF",

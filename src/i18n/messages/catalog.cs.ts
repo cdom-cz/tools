@@ -23,9 +23,9 @@ export const catalogCs: Record<
   meditation: {
     name: "Meditace",
     description:
-      "Meditační timer s bloky. Nastavíš počet a délku bloků, na konci každého zazní jemný gong, na konci celé meditace gong třikrát.",
+      "Meditační timer s bloky. Každému bloku nastavíš vlastní délku, na konci každého zazní jemný gong, na konci celé meditace gong třikrát.",
     tags: ["mysl", "čas"],
-    intro: "Nastav počet a délku bloků, na konci každého zazní jemný gong. Nastavení se ukládá v tomto prohlížeči.",
+    intro: "Přidej libovolný počet bloků a každému nastav vlastní délku; na konci každého zazní jemný gong. Nastavení se ukládá v tomto prohlížeči.",
   },
   passwords: {
     name: "Generátor hesel",

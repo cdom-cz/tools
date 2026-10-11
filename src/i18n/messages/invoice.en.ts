@@ -73,6 +73,9 @@ export const invoiceEn: typeof invoiceCs = {
     title: "Appearance",
     logo: "Logo (top left)",
     signature: "Signature / stamp",
+    color: "Primary color",
+    colorReset: "Default",
+    colorHint: "All other invoice colors (text, lines, backgrounds) are derived from the primary color.",
   },
   actions: {
     download: "Download PDF",
