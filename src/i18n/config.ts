@@ -10,7 +10,7 @@ export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "cs";
 
 /** Internal tool ID — independent of language and URL. */
-export const TOOL_IDS = ["timer", "meditation", "passwords", "invoice", "compound"] as const;
+export const TOOL_IDS = ["timer", "meditation", "passwords", "invoice", "compound", "lorem"] as const;
 export type ToolId = (typeof TOOL_IDS)[number];
 
 /** The tool's URL segment per language. */
@@ -20,6 +20,7 @@ export const TOOL_SLUGS: Record<ToolId, Record<Locale, string>> = {
   passwords: { cs: "hesla", en: "passwords" },
   invoice: { cs: "faktura", en: "invoice" },
   compound: { cs: "slozene-uroceni", en: "compound-interest" },
+  lorem: { cs: "lorem-ipsum", en: "lorem-ipsum" },
 };
 
 /** Path prefix of a language: `""` for the default, otherwise `/en`. */

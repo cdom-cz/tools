@@ -17,6 +17,7 @@ settings are kept in `localStorage`.
 | `/en/passwords` | `/hesla` | Generator of strong random passwords and memorable passphrases |
 | `/en/invoice` | `/faktura` | One-off CZK invoice as a PDF (QR payment, VAT payer / non-payer, logo and signature) |
 | `/en/compound-interest` | `/slozene-uroceni` | Compound interest calculator with a chart (monthly/yearly crediting) |
+| `/en/lorem-ipsum` | `/lorem-ipsum` | Lorem ipsum placeholder text generator (paragraphs, sentences, words) |
 
 ### Invoice generator
 

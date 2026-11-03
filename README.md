@@ -17,6 +17,7 @@ v prohlížeči, případné nastavení se ukládá do `localStorage`.
 | `/hesla` | `/en/passwords` | Generátor silných náhodných hesel a zapamatovatelných frází |
 | `/faktura` | `/en/invoice` | Jednorázová faktura v CZK jako PDF (QR platba, plátce/neplátce DPH, logo a podpis) |
 | `/slozene-uroceni` | `/en/compound-interest` | Kalkulačka složeného úročení s grafem (připisování měsíčně/ročně) |
+| `/lorem-ipsum` | `/en/lorem-ipsum` | Generátor výplňového textu lorem ipsum (odstavce, věty, slova) |
 
 ## Jazyky
 

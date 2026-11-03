@@ -10,7 +10,7 @@ export type CatalogEntry = {
 };
 
 export const catalogCs: Record<
-  "timer" | "meditation" | "passwords" | "invoice" | "compound",
+  "timer" | "meditation" | "passwords" | "invoice" | "compound" | "lorem",
   CatalogEntry
 > = {
   timer: {
@@ -49,5 +49,12 @@ export const catalogCs: Record<
     tags: ["finance", "spoření"],
     intro:
       "Spočítá, jak naroste vklad při složeném úročení. Vše se počítá v prohlížeči, nastavení se ukládá jen tady.",
+  },
+  lorem: {
+    name: "Lorem ipsum generátor",
+    description:
+      "Vygeneruje výplňový text lorem ipsum. Zvolíš počet odstavců, vět nebo slov, případně HTML značky <p>, a text jedním klepnutím zkopíruješ.",
+    tags: ["text", "design"],
+    intro: "Text vzniká přímo v prohlížeči. Nastavení se ukládá v tomto prohlížeči.",
   },
 };
