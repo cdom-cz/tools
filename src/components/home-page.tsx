@@ -93,4 +93,5 @@ const TOOL_ICONS = {
   passwords: "🔑",
   invoice: "🧾",
   compound: "📈",
+  lorem: "📝",
 } as const;

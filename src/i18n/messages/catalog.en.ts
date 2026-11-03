@@ -38,4 +38,11 @@ export const catalogEn: typeof catalogCs = {
     intro:
       "Calculates how a deposit grows with compound interest. Everything is computed in your browser; settings are saved only here.",
   },
+  lorem: {
+    name: "Lorem Ipsum Generator",
+    description:
+      "Generates lorem ipsum placeholder text. Choose the number of paragraphs, sentences or words, optionally with <p> HTML tags, and copy it with one tap.",
+    tags: ["text", "design"],
+    intro: "The text is generated right in your browser. Settings are saved in this browser.",
+  },
 };

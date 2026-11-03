@@ -39,7 +39,7 @@ export function useCommon(): Dictionary["common"] {
 }
 
 /** Texts of a specific tool; `<ToolPage>` puts them into the provider. */
-export function useToolMessages<K extends "timer" | "meditation" | "passwords" | "invoice" | "compound">(
+export function useToolMessages<K extends "timer" | "meditation" | "passwords" | "invoice" | "compound" | "lorem">(
   tool: K,
 ): Dictionary[K] {
   const messages = useCtx().messages[tool];
